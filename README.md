@@ -1,5 +1,10 @@
 # AssetReuploader
-## Latest release has mesh and animation support!
+# This is a modification of the original AssetReuploader which updates it to the modern OpenCloud API, alongside ease of use and security fixes.
+
+## AI DISCLAIMER
+This was primarily vibe-coded because I hate javascript. If you have a problem with that, feel free to use the original tool. I won't take it personally.
+
+Speaking of ai, here is the incredibly long README it wrote:
 
 Do you: 
 
