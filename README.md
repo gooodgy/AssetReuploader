@@ -65,7 +65,7 @@ The roblox plugin then replaces all occurrences of those assetIDs in the game wi
   ![image](https://github.com/user-attachments/assets/4d0701e8-90d8-4c12-8566-987ebf38eeee)
 
 
-## If you want to reupload image assets:
+## If you want to reupload image, mesh, or animation assets:
 
 - Head to the Creator Dashboard https://create.roblox.com/dashboard/
 
@@ -75,17 +75,28 @@ The roblox plugin then replaces all occurrences of those assetIDs in the game wi
 
 - Create a new API key
 
-- Make sure your settings look like this, add your IP(or 0.0.0.0/0 if you don't care), and generate a new API Key
+- Grant the key Assets read/write access for the target creator and add your IP address to its allowlist. Images, meshes, and animations use the Open Cloud Assets API and require this key.
+- Generate a new API key.
 
 ![image](https://github.com/user-attachments/assets/f536711d-c53d-4452-aabf-f38c3734fc35)
 
-- Copy the full API key and then open up the plugin and paste it in the API Key field
+- Start the Node.js server and open its local dashboard. Select User or Group, enter the matching creator ID, and save the API key there. The plugin now sends only the creator ID; the server selects the stored key for that creator.
 
-  ![image](https://github.com/user-attachments/assets/55105aff-a8a2-48c5-93ae-6bc271f56e6d)
+- Make sure the saved key's creator type and ID match the target selected in the plugin.
+- Keys persist across server restarts in `.asset-reuploader/credentials.json` under the current user's home directory. The file is unencrypted; protect your account and do not share the file or dashboard with untrusted users.
 
-- Make sure this is the correct API key for the group you have selected, or for your profile if Upload To Group is turned off
+- For mesh uploads, Roblox only accepts mesh data downloaded from the Asset Delivery API; custom mesh files are not supported by this upload flow.
 
 ![image](https://github.com/user-attachments/assets/a4b8bc18-fbce-4574-bd1f-602a1526a688)
+
+# Local server authorization
+
+- Start the Node.js server before running an upload. It opens a local dashboard with live server logs and a copy button for the temporary local authorization token. The same token is also printed in the console.
+- This is the plugin's local bearer token, not the Roblox Open Cloud API key.
+- In the updated Studio plugin, paste that token into **Local Server Token** under **Upload Settings**.
+- The token changes whenever the server restarts. Do not share screenshots or logs containing it.
+- If you use an already-installed local plugin, save the updated `AssetReuploader.rbxmx` as a Local Plugin again so it includes token support.
+- Image, mesh, and animation uploads use the Open Cloud Assets API and require the matching creator's API key in the server dashboard. Asset downloads are unauthenticated; no Roblox session cookie is requested or stored.
 
 # Building from Source
 
@@ -97,14 +108,13 @@ The roblox plugin then replaces all occurrences of those assetIDs in the game wi
 
 # Notes
 
-- The conversion process can take several minutes for hundreds of assets. There are some long delays to avoid hitting OpenCloud rate limits.
-So relax and grab a coffee!
+- Open Cloud requests are capped at 120 requests per rolling minute. The limiter includes uploads, operation polling, and moderation lookups because they share the API-key request quota. If the local cap is reached, the job reports that it is waiting; if Roblox returns HTTP 429, the affected asset is recorded as failed and the final job status explains the rate limit.
+- Roblox applies this quota across API keys for a creator, so other tools using the same creator's keys can still cause an HTTP 429.
+- The conversion process can take several minutes for hundreds of assets, especially when it must wait for rate-limit slots.
 
 - This is the first real distributed tool/software I've ever made. It was a quick tool made for my studio that I decided to share with you all.
   - This means a few things:
     - There might be issues and I'm a busy person working on my games so I might not be able to maintain this very quickly
     - The code is kinda fugly, I hate making plugins and do it out of necessity :D
-
-- Special thanks to https://crates.io/crates/rbx_cookie for making uploading animations easier
 
 
